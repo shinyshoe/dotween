@@ -31,6 +31,8 @@ namespace DG.Tweening.Core
         public DOSetter<T1> setter;
         internal ABSTweenPlugin<T1, T2, TPlugOptions> tweenPlugin;
 
+        public string creationCallstack;
+
         const string _TxtCantChangeSequencedValues = "You cannot change the values of a tween contained inside a Sequence";
 
         #region Constructor
@@ -42,6 +44,8 @@ namespace DG.Tweening.Core
             typeofTPlugOptions = typeof(TPlugOptions);
             tweenType = TweenType.Tweener;
             Reset();
+
+            creationCallstack = Environment.StackTrace;
         }
 
         #endregion
@@ -244,7 +248,16 @@ namespace DG.Tweening.Core
                     return true;
                 }
             } else {
-                tweenPlugin.EvaluateAndApply(plugOptions, this, isRelative, getter, setter, updatePosition, startValue, changeValue, duration, useInversePosition, updateNotice);
+                try
+                {
+                    tweenPlugin.EvaluateAndApply(plugOptions, this, isRelative, getter, setter, updatePosition, startValue, changeValue, duration, useInversePosition, updateNotice);
+                }
+                catch (Exception innerException)
+                {
+                    throw new Exception(innerException.ToString() + Environment.NewLine + Environment.NewLine +
+                                        "Tween Creator:" + Environment.NewLine + creationCallstack +
+                                        Environment.NewLine + "-----" + Environment.NewLine);
+                }
             }
             return false;
         }
