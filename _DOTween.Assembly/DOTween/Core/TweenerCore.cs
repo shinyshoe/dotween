@@ -31,11 +31,13 @@ namespace DG.Tweening.Core
         public DOSetter<T1> setter;
         internal ABSTweenPlugin<T1, T2, TPlugOptions> tweenPlugin;
 
+#if SHINYSHOE_DEVELOPMENT
         public string creationCallstack;
+#endif
 
         const string _TxtCantChangeSequencedValues = "You cannot change the values of a tween contained inside a Sequence";
 
-        #region Constructor
+#region Constructor
 
         internal TweenerCore()
         {
@@ -45,12 +47,14 @@ namespace DG.Tweening.Core
             tweenType = TweenType.Tweener;
             Reset();
 
+#if SHINYSHOE_DEVELOPMENT
             creationCallstack = Environment.StackTrace;
+#endif
         }
 
-        #endregion
+#endregion
 
-        #region Public Methods
+#region Public Methods
 
         // No generics because T to T2 conversion isn't compatible with AOT
         public override Tweener ChangeStartValue(object newStartValue, float newDuration = -1)
@@ -115,7 +119,7 @@ namespace DG.Tweening.Core
             return DoChangeValues(this, (T2)newStartValue, (T2)newEndValue, newDuration);
         }
 
-        #region Advanced Usage (direct from TweenerCore reference)
+#region Advanced Usage (direct from TweenerCore reference)
 
         /// <summary>NO-GC METHOD: changes the start value of a tween and rewinds it (without pausing it).
         /// Has no effect with tweens that are inside Sequences</summary>
@@ -164,9 +168,9 @@ namespace DG.Tweening.Core
             return DoChangeValues(this, newStartValue, newEndValue, newDuration);
         }
 
-        #endregion
+#endregion
 
-        #endregion
+#endregion
 
         // Sets From tweens, immediately sending the target to its endValue and assigning new start/endValues.
         // Called by TweenSettings.From.
@@ -248,9 +252,12 @@ namespace DG.Tweening.Core
                     return true;
                 }
             } else {
+#if SHINYSHOE_DEVELOPMENT
                 try
                 {
+#endif
                     tweenPlugin.EvaluateAndApply(plugOptions, this, isRelative, getter, setter, updatePosition, startValue, changeValue, duration, useInversePosition, updateNotice);
+#if SHINYSHOE_DEVELOPMENT
                 }
                 catch (Exception innerException)
                 {
@@ -258,6 +265,7 @@ namespace DG.Tweening.Core
                                         "Tween Creator:" + Environment.NewLine + creationCallstack +
                                         Environment.NewLine + "-----" + Environment.NewLine);
                 }
+#endif
             }
             return false;
         }
